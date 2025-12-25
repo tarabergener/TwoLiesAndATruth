@@ -4,6 +4,7 @@ import random
 class Game:
     def __init__(self, screen):
         self.screen = screen
+        self.state = "menu"
         self.clock = pygame.time.Clock()
         self.running = True
         self.score = 0
@@ -66,6 +67,8 @@ class Game:
         self.was_correct = False
 
         self.next_rect = pygame.Rect(300, 500, 200, 60)
+
+        self.play_rect = pygame.Rect(300, 300, 200, 60)
         
     def generate_round(self, truths, lies):
         truth = random.choice(truths)
@@ -83,6 +86,12 @@ class Game:
         
     def handle_events(self):
         for event in pygame.event.get():
+            if self.state == "menu":
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    pos = pygame.mouse.get_pos()
+                    if self.play_rect.collidepoint(pos):
+                        self.state = "playing"
+
             if event.type == pygame.QUIT:
                 self.running = False
 
@@ -141,6 +150,20 @@ class Game:
         round_text = self.font.render(f"Round: {self.round_number}", True, (255, 255, 255))
         self.screen.blit(score_text, (50, 20)) 
         self.screen.blit(round_text, (650, 20))
+
+        if self.state == "menu":
+            # Draw menu
+            title_font = pygame.font.SysFont('Arial', 50)
+            title_surface = title_font.render("Two Lies and a Truth", True, (255, 255, 255))
+            self.screen.blit(title_surface, (200, 150))
+
+            # Draw Play button
+            pygame.draw.rect(self.screen, (100, 200, 100), self.play_rect)
+            play_text = self.font.render("Play", True, (0, 0, 0))
+            self.screen.blit(play_text, (self.play_rect.x + 70, self.play_rect.y + 15))
+
+            pygame.display.flip()
+            return
 
         # Draw result if submitted
         if self.show_result:
